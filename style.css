@@ -5,12 +5,25 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+    --ios-bg: rgba(255, 255, 255, 0.1);
+    --ios-border: rgba(255, 255, 255, 0.15);
+    --ios-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --ios-blur: blur(20px);
+    --primary: #007AFF;
+    --success: #34C759;
+    --danger: #FF3B30;
+    --text: #FFFFFF;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    color: var(--text);
     background: #000;
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 #bgVideo {
@@ -21,16 +34,15 @@ body {
     height: 100%;
     object-fit: cover;
     z-index: -1;
-    opacity: 0.3;
+    opacity: 0.15;
 }
 
 .container {
     max-width: 100%;
     min-height: 100vh;
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    position: relative;
 }
 
 /* Уведомление */
@@ -39,266 +51,309 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 15px;
-    text-align: center;
     z-index: 1000;
-    animation: slideDown 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    display: none;
+}
+
+.notification.show {
+    display: block;
 }
 
 .notification-content {
+    background: var(--ios-bg);
+    backdrop-filter: var(--ios-blur);
+    border: 1px solid var(--ios-border);
+    border-radius: 14px;
+    padding: 15px 20px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    gap: 12px;
+    box-shadow: var(--ios-shadow);
 }
 
-.notification i {
+.notification-content i {
+    color: var(--primary);
     font-size: 1.2rem;
 }
 
-.hidden {
-    display: none !important;
-}
-
-/* Шапка */
-.header {
+/* Верхняя панель */
+.top-bar {
     display: flex;
     justify-content: space-between;
-    padding: 15px 0;
+    align-items: center;
+    padding: 10px 0;
     margin-bottom: 20px;
 }
 
-.header-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+.icon-btn {
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
-    padding: 12px 20px;
-    color: white;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 110px;
-    backdrop-filter: blur(10px);
-}
-
-.header-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-.header-btn i {
-    font-size: 1.3rem;
-    margin-bottom: 5px;
-}
-
-.header-btn span {
-    font-weight: 500;
-}
-
-/* Основной контент */
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Карточка валюты */
-.currency-card {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.currency-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.currency-icon {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
+    background: var(--ios-bg);
+    backdrop-filter: var(--ios-blur);
+    border: 1px solid var(--ios-border);
+    color: var(--text);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.currency-title {
-    font-size: 1.4rem;
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.balance-info {
+    text-align: center;
+}
+
+.balance-amount {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: 2px;
+}
+
+.balance-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Сетка валют */
+.currencies-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Карточка в стиле iOS */
+.currency-card.ios-style {
+    background: var(--ios-bg);
+    backdrop-filter: var(--ios-blur);
+    border: 1px solid var(--ios-border);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: var(--ios-shadow);
+}
+
+.currency-card.ios-style:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.currency-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.currency-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+}
+
+.currency-name {
+    font-size: 1rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
 }
 
 .currency-price {
-    font-size: 2.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin: 10px 0;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #00b09b, #96c93d);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .currency-change {
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 20px;
-    padding: 5px 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
     border-radius: 20px;
-    display: inline-block;
-    margin-left: 50%;
-    transform: translateX(-50%);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 20px;
 }
 
-.currency-change.positive {
-    background: rgba(76, 175, 80, 0.2);
-    color: #4caf50;
-    border: 1px solid rgba(76, 175, 80, 0.3);
+.currency-change .change-value {
+    font-size: 0.95rem;
 }
 
-.currency-change.negative {
-    background: rgba(244, 67, 54, 0.2);
-    color: #f44336;
-    border: 1px solid rgba(244, 67, 54, 0.3);
+.currency-change .change-icon {
+    font-size: 0.8rem;
 }
 
-/* Элементы управления торговлей */
-.trade-controls {
-    margin-top: 20px;
+.currency-change.up {
+    background: rgba(52, 199, 89, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(52, 199, 89, 0.3);
 }
 
-.amount-buttons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+.currency-change.down {
+    background: rgba(255, 59, 48, 0.15);
+    color: var(--danger);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+}
+
+/* Выбор суммы */
+.amount-selector {
+    display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    width: 100%;
 }
 
-.amount-btn {
+.amount-option {
+    flex: 1;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    color: white;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.amount-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-.trade-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.trade-btn {
-    padding: 15px;
-    border: none;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.amount-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.amount-option.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Кнопки действий */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+}
+
+.action-btn.sell {
+    background: linear-gradient(135deg, #FF416C, #FF4B2B);
+    color: white;
+}
+
+.action-btn.buy {
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+    color: white;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Подсказка */
+.hint {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-}
-
-.sell-btn {
-    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-    color: white;
-}
-
-.buy-btn {
-    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
-    color: white;
-}
-
-.trade-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.trade-btn i {
-    font-size: 1.2rem;
-}
-
-/* Подвал с балансом */
-.footer {
-    padding: 15px 0;
-    margin-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.balance-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 1.2rem;
     padding: 15px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--ios-bg);
+    backdrop-filter: var(--ios-blur);
+    border: 1px solid var(--ios-border);
+    border-radius: 14px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: auto;
 }
 
-.balance-display i {
-    color: #4caf50;
-    font-size: 1.5rem;
+.hint i {
+    color: var(--primary);
+    font-size: 1rem;
 }
 
-.balance-display strong {
-    color: #4caf50;
-    font-size: 1.4rem;
-}
-
-/* Модальные окна */
+/* Модальные окна iOS */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1001;
-    padding: 20px;
+    z-index: 2000;
+    display: none;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
 }
 
-.modal-content {
-    background: rgba(30, 30, 46, 0.95);
-    border-radius: 20px;
-    width: 100%;
-    max-width: 400px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
+.modal-container.ios-modal {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--ios-bg);
+    backdrop-filter: var(--ios-blur);
+    border-top: 1px solid var(--ios-border);
+    border-radius: 24px 24px 0 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
 }
 
 .modal-header {
@@ -306,96 +361,92 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--ios-border);
 }
 
 .modal-header h2 {
     font-size: 1.3rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.modal-header h2 i {
-    color: #667eea;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2rem;
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--ios-border);
+    color: var(--text);
+    font-size: 1.5rem;
     cursor: pointer;
-    width: 40px;
-    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
     transition: all 0.3s ease;
 }
 
-.close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .modal-body {
     padding: 20px;
 }
 
-/* Список рейтинга */
-.rating-list {
+/* Компактный рейтинг */
+.rating-list.compact {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .rating-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px;
+    padding: 12px 15px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     transition: all 0.3s ease;
 }
 
 .rating-item.current {
-    background: rgba(102, 126, 234, 0.2);
-    border: 1px solid rgba(102, 126, 234, 0.5);
+    background: rgba(0, 122, 255, 0.15);
+    border-color: rgba(0, 122, 255, 0.3);
 }
 
 .rating-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
 }
 
-.rating-item .rank {
-    width: 35px;
-    height: 35px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
+.rating-rank {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 1.1rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-right: 15px;
 }
 
-.rating-item .player {
+.rating-name {
     flex: 1;
-    margin: 0 15px;
     font-weight: 500;
 }
 
-.rating-item .value {
-    font-weight: bold;
-    color: #4caf50;
+.rating-value {
+    font-weight: 700;
+    color: var(--success);
     font-size: 1.1rem;
 }
 
-/* Элементы портфеля */
-.portfolio-items {
+/* Портфель в модалке */
+.portfolio-summary {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -404,110 +455,101 @@ body {
 
 .portfolio-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 15px;
     background: rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.item-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 122, 255, 0.15);
     border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1.2rem;
+    color: var(--primary);
 }
 
-.currency-name {
-    font-weight: 500;
-    font-size: 1.1rem;
-    min-width: 60px;
-}
-
-.currency-amount {
+.item-info {
     flex: 1;
-    text-align: center;
-    font-weight: 500;
 }
 
-.currency-value {
-    font-weight: bold;
-    color: #4caf50;
-    min-width: 80px;
-    text-align: right;
+.item-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.item-amount {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.item-value {
+    font-weight: 700;
+    color: var(--success);
+    font-size: 1.1rem;
 }
 
 .portfolio-total {
-    padding: 15px;
+    padding: 20px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     text-align: center;
-    font-size: 1.2rem;
-    font-weight: 500;
 }
 
-.portfolio-total strong {
-    color: #4caf50;
-    font-size: 1.3rem;
+.total-label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
 }
 
-/* Анимации */
-@keyframes slideDown {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
+.total-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--success);
+}
+
+/* Адаптивность для телефонов */
+@media (max-width: 768px) {
+    .currencies-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
-    to {
-        transform: translateY(0);
-        opacity: 1;
+    
+    .currency-card.ios-style {
+        max-width: 100%;
+        margin: 0 auto;
     }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
+    
+    .container {
+        padding: 10px;
     }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.modal-content {
-    animation: fadeIn 0.3s ease;
-}
-
-/* Адаптивность */
-@media (max-width: 480px) {
-    .header-btn {
-        padding: 10px 15px;
-        min-width: 90px;
-        font-size: 0.8rem;
+    
+    .balance-amount {
+        font-size: 1.6rem;
     }
     
     .currency-price {
         font-size: 2rem;
     }
     
-    .currency-title {
-        font-size: 1.2rem;
-    }
-    
-    .trade-btn {
-        padding: 12px;
-        font-size: 1rem;
-    }
-    
-    .amount-btn {
-        padding: 10px;
-        font-size: 0.9rem;
-    }
-    
-    .balance-display {
-        font-size: 1.1rem;
+    .modal-container.ios-modal {
+        max-height: 80vh;
     }
 }
 
-@media (max-width: 360px) {
-    .container {
-        padding: 5px;
+@media (max-width: 480px) {
+    .currencies-grid {
+        gap: 15px;
     }
     
-    .currency-card {
+    .currency-content {
         padding: 15px;
     }
     
@@ -515,15 +557,64 @@ body {
         font-size: 1.8rem;
     }
     
-    .trade-buttons {
-        grid-template-columns: 1fr;
-        gap: 10px;
+    .amount-selector {
+        gap: 8px;
+    }
+    
+    .amount-option {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .action-btn {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+    
+    .modal-container.ios-modal {
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .portfolio-item {
+        padding: 12px;
+    }
+    
+    .item-value {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .top-bar {
+        margin-bottom: 15px;
+    }
+    
+    .currency-content {
+        padding: 12px;
+    }
+    
+    .currency-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .currency-price {
+        font-size: 1.6rem;
+    }
+    
+    .amount-selector {
+        flex-direction: column;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
     }
 }
 
 /* Полоса прокрутки */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -531,10 +622,31 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.5);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(102, 126, 234, 0.8);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Анимации для обновления цены */
+.price-up {
+    animation: priceUp 0.5s ease;
+}
+
+.price-down {
+    animation: priceDown 0.5s ease;
+}
+
+@keyframes priceUp {
+    0% { color: inherit; }
+    50% { color: var(--success); }
+    100% { color: inherit; }
+}
+
+@keyframes priceDown {
+    0% { color: inherit; }
+    50% { color: var(--danger); }
+    100% { color: inherit; }
 }
