@@ -16,24 +16,97 @@ let gameState = {
         EUR: 90.25,
         CNY: 11.80
     },
-    currentAmount: 500,
+    selectedAmounts: {
+        USD: 0,
+        EUR: 0,
+        CNY: 0
+    },
     news: []
 };
 
-// ТОРГОВЛЯ - ИСПРАВЛЕННАЯ ФУНКЦИЯ
-function tradeCurrency(currency, action) {
-    console.log(`Торговля: ${action} ${currency} на сумму ${gameState.currentAmount}`);
+// Новости
+const newsList = [
+    { text: "ЦБ повысил ключевую ставку", type: "positive", impact: { USD: 0.03, EUR: 0.02, CNY: 0.01 } },
+    { text: "Падение цен на нефть", type: "negative", impact: { USD: -0.04, EUR: -0.02, CNY: -0.01 } },
+    { text: "Новые санкции", type: "negative", impact: { USD: 0.05, EUR: 0.03, CNY: 0.02 } },
+    { text: "Китай увеличил экспорт", type: "positive", impact: { USD: 0.01, EUR: 0.01, CNY: -0.03 } },
+    { text: "ЕЦБ сохранил ставки", type: "neutral", impact: { USD: -0.02, EUR: 0.02, CNY: 0.01 } },
+    { text: "Рост ВВП США", type: "positive", impact: { USD: -0.03, EUR: 0.01, CNY: 0.01 } },
+    { text: "Инфляция снизилась", type: "positive", impact: { USD: 0.01, EUR: -0.02, CNY: 0.01 } },
+    { text: "Торговые переговоры провалились", type: "negative", impact: { USD: 0.04, EUR: 0.03, CNY: 0.05 } },
+    { text: "Криптовалюты выросли", type: "neutral", impact: { USD: 0.02, EUR: 0.01, CNY: 0.01 } },
+    { text: "Доллар укрепился", type: "positive", impact: { USD: -0.04, EUR: 0.02, CNY: 0.02 } },
+    { text: "Евро ослаб", type: "negative", impact: { USD: 0.01, EUR: 0.04, CNY: 0.01 } },
+    { text: "Юань стабилизировался", type: "positive", impact: { USD: 0.01, EUR: 0.01, CNY: -0.02 } },
+    { text: "Золото подорожал", type: "positive", impact: { USD: 0.02, EUR: 0.02, CNY: 0.02 } },
+    { text: "ФРС готовится к смягчению", type: "negative", impact: { USD: 0.03, EUR: 0.01, CNY: 0.01 } },
+    { text: "Банки повысили прогнозы по рублю", type: "positive", impact: { USD: -0.03, EUR: -0.02, CNY: -0.02 } },
+    { text: "Нефть превысила $90", type: "positive", impact: { USD: -0.02, EUR: -0.01, CNY: -0.01 } },
+    { text: "Акции упали", type: "negative", impact: { USD: 0.03, EUR: 0.02, CNY: 0.02 } },
+    { text: "Китай снизил ставки", type: "positive", impact: { USD: 0.01, EUR: 0.01, CNY: -0.04 } },
+    { text: "Турецкая лира обновила минимум", type: "neutral", impact: { USD: 0.02, EUR: 0.02, CNY: 0.01 } },
+    { text: "Япония вмешалась в курс йены", type: "neutral", impact: { USD: 0.01, EUR: 0.01, CNY: 0.01 } }
+];
+
+// Инициализация игры
+window.addEventListener('DOMContentLoaded', () => {
+    console.log("Игра загружается...");
+    initGame();
+});
+
+function initGame() {
+    loadGame();
+    updateDisplay();
+    startRateFluctuation();
+    startNewsCycle();
     
+    console.log("Игра инициализирована");
+    console.log("Начальный баланс:", gameState.balance);
+    console.log("Начальные курсы:", gameState.rates);
+}
+
+// ДОБАВЛЕНИЕ СУММЫ К ВЫБРАННОЙ ВАЛЮТЕ
+function addAmount(amount, currency) {
+    gameState.selectedAmounts[currency] += amount;
+    updateSelectedAmountDisplay(currency);
+    
+    const totalCost = gameState.selectedAmounts[currency] * gameState.rates[currency];
+    showNotification(`${currency}: +${amount}. Итого: ${gameState.selectedAmounts[currency]} (${totalCost.toFixed(2)} ₽)`, 'info');
+}
+
+// СБРОС СУММЫ ДЛЯ ВАЛЮТЫ
+function resetAmount(currency) {
+    gameState.selectedAmounts[currency] = 0;
+    updateSelectedAmountDisplay(currency);
+    showNotification(`${currency}: сумма сброшена`, 'info');
+}
+
+// ОБНОВЛЕНИЕ ОТОБРАЖЕНИЯ ВЫБРАННОЙ СУММЫ
+function updateSelectedAmountDisplay(currency) {
+    const element = document.getElementById(`${currency.toLowerCase()}SelectedAmount`);
+    if (element) {
+        element.textContent = gameState.selectedAmounts[currency];
+    }
+}
+
+// ТОРГОВЛЯ - ОСНОВНАЯ ФУНКЦИЯ
+function tradeCurrency(currency, action) {
+    const amount = gameState.selectedAmounts[currency];
     const rate = gameState.rates[currency];
-    const amount = gameState.currentAmount;
+    
+    console.log(`Торговля: ${action} ${currency} на сумму ${amount} по курсу ${rate}`);
+    
+    if (amount <= 0) {
+        showNotification('Сначала выберите сумму для сделки!', 'error');
+        return;
+    }
     
     if (action === 'buy') {
         const cost = amount * rate;
         console.log(`Стоимость покупки: ${cost} ₽ (${amount} * ${rate})`);
-        console.log(`Текущий баланс: ${gameState.balance} ₽`);
         
         if (cost > gameState.balance) {
-            showNotification('Недостаточно средств!', 'error');
+            showNotification(`Недостаточно средств! Нужно ${cost.toFixed(2)} ₽, есть ${gameState.balance.toFixed(2)} ₽`, 'error');
             return;
         }
         
@@ -41,14 +114,18 @@ function tradeCurrency(currency, action) {
         gameState.portfolio[currency] += amount;
         showNotification(`Куплено ${amount} ${currency} за ${cost.toFixed(2)} ₽`, 'success');
         
+        // Сбрасываем сумму после сделки
+        gameState.selectedAmounts[currency] = 0;
+        updateSelectedAmountDisplay(currency);
+        
         console.log(`Новый баланс: ${gameState.balance} ₽`);
-        console.log(`Новое количество ${currency}: ${gameState.portfolio[currency]}`);
+        console.log(`Куплено ${currency}: ${amount}, теперь всего: ${gameState.portfolio[currency]}`);
         
     } else if (action === 'sell') {
         console.log(`Продажа ${currency}: доступно ${gameState.portfolio[currency]}, продаем ${amount}`);
         
         if (amount > gameState.portfolio[currency]) {
-            showNotification('Недостаточно валюты!', 'error');
+            showNotification(`Недостаточно ${currency}! Доступно: ${gameState.portfolio[currency].toFixed(2)}`, 'error');
             return;
         }
         
@@ -59,32 +136,34 @@ function tradeCurrency(currency, action) {
         gameState.portfolio[currency] -= amount;
         showNotification(`Продано ${amount} ${currency} за ${income.toFixed(2)} ₽`, 'success');
         
+        // Сбрасываем сумму после сделки
+        gameState.selectedAmounts[currency] = 0;
+        updateSelectedAmountDisplay(currency);
+        
         console.log(`Новый баланс: ${gameState.balance} ₽`);
-        console.log(`Новое количество ${currency}: ${gameState.portfolio[currency]}`);
+        console.log(`Продано ${currency}: ${amount}, осталось: ${gameState.portfolio[currency]}`);
     }
     
     updateDisplay();
     saveGame();
 }
 
-// Флуктуация курсов - ИСПРАВЛЕННАЯ
+// ФЛУКТУАЦИЯ КУРСОВ
 function startRateFluctuation() {
     setInterval(() => {
-        // СОХРАНЯЕМ ТЕКУЩИЕ КУРСЫ КАК ПРЕДЫДУЩИЕ ПЕРЕД ИЗМЕНЕНИЕМ
+        // Сохраняем текущие курсы как предыдущие
         gameState.previousRates = {
             USD: gameState.rates.USD,
             EUR: gameState.rates.EUR,
             CNY: gameState.rates.CNY
         };
         
-        console.log("Обновление курсов:");
-        console.log("Предыдущие курсы:", gameState.previousRates);
+        // Случайные изменения (сильные колебания!)
+        const usdChange = (Math.random() * 0.15 - 0.075); // -7.5% до +7.5%
+        const eurChange = (Math.random() * 0.15 - 0.075);
+        const cnyChange = (Math.random() * 0.12 - 0.06);  // -6% до +6%
         
-        // Обновляем каждый курс с сильными изменениями
-        const usdChange = (Math.random() * 0.1 - 0.05); // -5% до +5%
-        const eurChange = (Math.random() * 0.1 - 0.05);
-        const cnyChange = (Math.random() * 0.08 - 0.04);
-        
+        // Применяем изменения
         gameState.rates.USD *= (1 + usdChange);
         gameState.rates.EUR *= (1 + eurChange);
         gameState.rates.CNY *= (1 + cnyChange);
@@ -94,43 +173,47 @@ function startRateFluctuation() {
         gameState.rates.EUR = Math.max(20, Math.min(300, gameState.rates.EUR));
         gameState.rates.CNY = Math.max(5, Math.min(50, gameState.rates.CNY));
         
-        console.log("Изменения:", {
-            USD: `${(usdChange * 100).toFixed(2)}%`,
-            EUR: `${(eurChange * 100).toFixed(2)}%`,
-            CNY: `${(cnyChange * 100).toFixed(2)}%`
-        });
-        
-        console.log("Новые курсы:", gameState.rates);
-        
+        // Обновляем отображение
         updateDisplay();
-    }, 3000);
+        
+    }, 3000); // Каждые 3 секунды
 }
 
-// Обновление отображения валюты - ИСПРАВЛЕННОЕ
+// ОБНОВЛЕНИЕ ОТОБРАЖЕНИЯ
+function updateDisplay() {
+    // Баланс
+    document.getElementById('balanceAmount').textContent = `${gameState.balance.toFixed(2)} ₽`;
+    
+    // Курсы валют
+    updateCurrencyDisplay('USD');
+    updateCurrencyDisplay('EUR');
+    updateCurrencyDisplay('CNY');
+    
+    // Портфель
+    updatePortfolio();
+}
+
+// ОБНОВЛЕНИЕ ОТОБРАЖЕНИЯ ВАЛЮТЫ
 function updateCurrencyDisplay(currency) {
     const rate = gameState.rates[currency];
     const previous = gameState.previousRates[currency];
     const change = ((rate - previous) / previous) * 100;
     
-    console.log(`Обновление ${currency}:`);
-    console.log(`Текущая цена: ${rate}`);
-    console.log(`Предыдущая цена: ${previous}`);
-    console.log(`Изменение: ${change.toFixed(2)}%`);
-    
     // Обновляем цену
     const priceElement = document.getElementById(`${currency.toLowerCase()}Price`);
+    const oldPrice = parseFloat(priceElement.textContent) || 0;
     priceElement.textContent = rate.toFixed(2);
     
-    // Добавляем анимацию изменения
-    if (rate > previous) {
+    // Анимация изменения
+    if (rate > oldPrice) {
         priceElement.classList.remove('price-down');
         priceElement.classList.add('price-up');
-    } else if (rate < previous) {
+    } else if (rate < oldPrice) {
         priceElement.classList.remove('price-up');
         priceElement.classList.add('price-down');
     }
     
-    // Убираем анимацию через 500ms
+    // Убираем анимацию
     setTimeout(() => {
         priceElement.classList.remove('price-up', 'price-down');
     }, 500);
@@ -151,7 +234,95 @@ function updateCurrencyDisplay(currency) {
     }
 }
 
-// Обновление портфеля - ИСПРАВЛЕННОЕ
+// ЦИКЛ НОВОСТЕЙ
+function startNewsCycle() {
+    setInterval(() => {
+        const newsIndex = Math.floor(Math.random() * newsList.length);
+        const newsItem = newsList[newsIndex];
+        
+        showNotification(newsItem.text, newsItem.type);
+        
+        // Применяем влияние новости
+        Object.keys(newsItem.impact).forEach(currency => {
+            if (gameState.rates[currency]) {
+                gameState.previousRates[currency] = gameState.rates[currency];
+                gameState.rates[currency] *= (1 + newsItem.impact[currency]);
+            }
+        });
+        
+        updateDisplay();
+    }, 15000); // Каждые 15 секунд
+}
+
+// ПОКАЗАТЬ УВЕДОМЛЕНИЕ
+function showNotification(text, type = 'info') {
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
+    
+    notificationText.textContent = text;
+    
+    // Цвета для разных типов
+    const colors = {
+        success: '#34C759',
+        error: '#FF3B30',
+        info: '#007AFF',
+        warning: '#FF9500',
+        positive: '#34C759',
+        negative: '#FF3B30',
+        neutral: '#007AFF'
+    };
+    
+    notification.style.background = colors[type] || colors.info;
+    
+    notification.classList.add('show');
+    
+    // Скрыть через 3 секунды
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+// ОБНОВЛЕНИЕ РЕЙТИНГА
+function updateRating() {
+    const totalValue = gameState.balance + 
+        (gameState.portfolio.USD * gameState.rates.USD) +
+        (gameState.portfolio.EUR * gameState.rates.EUR) +
+        (gameState.portfolio.CNY * gameState.rates.CNY);
+    
+    // Создаем рейтинг
+    const ratings = [
+        { name: "Вы", value: totalValue, current: true }
+    ];
+    
+    // Добавляем демо-игроков
+    for (let i = 1; i <= 9; i++) {
+        ratings.push({
+            name: `Игрок ${i}`,
+            value: 1500 + Math.random() * 10000,
+            current: false
+        });
+    }
+    
+    // Сортируем по убыванию
+    ratings.sort((a, b) => b.value - a.value);
+    
+    // Отображаем
+    const ratingList = document.getElementById('ratingList');
+    ratingList.innerHTML = '';
+    
+    ratings.forEach((player, index) => {
+        const item = document.createElement('div');
+        item.className = `rating-item ${player.current ? 'current' : ''}`;
+        item.innerHTML = `
+            <div class="rating-rank">${index + 1}</div>
+            <div class="rating-name">${player.name}</div>
+            <div class="rating-value">${player.value.toFixed(2)} ₽</div>
+        `;
+        ratingList.appendChild(item);
+    });
+}
+
+// ОБНОВЛЕНИЕ ПОРТФЕЛЯ
 function updatePortfolio() {
     // Обновляем значения в модальном окне
     document.getElementById('portfolioUSD').textContent = gameState.portfolio.USD.toFixed(2);
@@ -175,22 +346,53 @@ function updatePortfolio() {
     document.getElementById('portfolioTotal').textContent = total.toFixed(2);
 }
 
-// Цикл новостей - ИСПРАВЛЕННЫЙ
-function startNewsCycle() {
-    setInterval(() => {
-        const newsIndex = Math.floor(Math.random() * newsList.length);
-        const newsItem = newsList[newsIndex];
-        
-        showNotification(newsItem.text, newsItem.type);
-        
-        // Применяем влияние новости
-        Object.keys(newsItem.impact).forEach(currency => {
-            if (gameState.rates[currency]) {
-                gameState.previousRates[currency] = gameState.rates[currency];
-                gameState.rates[currency] *= (1 + newsItem.impact[currency]);
-            }
-        });
-        
-        updateDisplay();
-    }, 15000);
+// СОХРАНЕНИЕ ИГРЫ
+function saveGame() {
+    localStorage.setItem('currencyTraderSave', JSON.stringify(gameState));
 }
+
+// ЗАГРУЗКА ИГРЫ
+function loadGame() {
+    const saved = localStorage.getItem('currencyTraderSave');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            Object.assign(gameState, data);
+            
+            // Обновляем отображение выбранных сумм
+            updateSelectedAmountDisplay('USD');
+            updateSelectedAmountDisplay('EUR');
+            updateSelectedAmountDisplay('CNY');
+            
+        } catch (e) {
+            console.log('Ошибка загрузки сохранения:', e);
+        }
+    }
+}
+
+// ЗАКРЫТИЕ МОДАЛЬНЫХ ОКОН
+function closeModal() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('show');
+    });
+}
+
+// ОБРАБОТЧИКИ КНОПОК (для рейтинга и портфеля)
+document.addEventListener('DOMContentLoaded', () => {
+    // Кнопка рейтинга
+    document.getElementById('ratingBtn').addEventListener('click', () => {
+        updateRating();
+        document.getElementById('ratingModal').classList.add('show');
+    });
+    
+    // Кнопка портфеля
+    document.getElementById('portfolioBtn').addEventListener('click', () => {
+        updatePortfolio();
+        document.getElementById('portfolioModal').classList.add('show');
+    });
+    
+    // Закрытие модальных окон
+    document.querySelectorAll('.modal-close, .modal-backdrop').forEach(el => {
+        el.addEventListener('click', closeModal);
+    });
+});
