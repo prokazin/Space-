@@ -1,235 +1,848 @@
+/* Базовые стили */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
 }
 
-body {
-    font-family: 'Courier New', monospace;
-    background: #000;
-    color: #8bb9fe;
+html, body {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    height: 100vh;
-    width: 100vw;
+    background: #000;
 }
 
-#spaceCanvas {
+/* Видео фон */
+#spaceVideo {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: block;
+    object-fit: cover;
     z-index: 1;
+    opacity: 0.7;
 }
 
-/* Прелоадер */
-#preloader {
+.video-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: #000;
+    background: linear-gradient(135deg, rgba(0, 20, 40, 0.9) 0%, rgba(0, 0, 20, 0.8) 100%);
+    z-index: 2;
+}
+
+/* Основной контейнер игры */
+.game-container {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    transition: opacity 1s ease, visibility 1s ease;
-}
-
-#preloader.fade-out {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.preloader-content {
-    text-align: center;
-    max-width: 600px;
-    padding: 40px;
-}
-
-.logo {
-    font-size: 48px;
-    font-weight: bold;
-    letter-spacing: 8px;
-    margin-bottom: 40px;
+    flex-direction: column;
+    padding: 20px;
     color: #fff;
-    text-shadow: 0 0 20px #8bb9fe;
-    animation: pulse 3s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { text-shadow: 0 0 20px #8bb9fe; }
-    50% { text-shadow: 0 0 40px #8bb9fe, 0 0 60px #8bb9fe; }
-}
-
-.loading-text {
-    font-size: 16px;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-    opacity: 0.8;
-}
-
-.loading-bar {
-    width: 400px;
-    height: 2px;
-    background: rgba(139, 185, 254, 0.2);
-    margin: 30px auto;
-    border-radius: 1px;
     overflow: hidden;
 }
 
-.loading-progress {
-    height: 100%;
-    background: linear-gradient(90deg, #8bb9fe, #ffffff);
-    width: 0%;
-    transition: width 0.3s ease;
-    border-radius: 1px;
-}
-
-.hint {
-    margin-top: 30px;
-    font-size: 14px;
-    opacity: 0.6;
-    letter-spacing: 1px;
-}
-
-/* HUD элементы */
-.hud {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 2;
-    font-family: 'Courier New', monospace;
-    text-align: right;
-    pointer-events: none;
-    opacity: 0.8;
-}
-
-.hud-item {
-    margin-bottom: 15px;
-    padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.5);
-    border-left: 2px solid #8bb9fe;
-}
-
-.hud-label {
-    font-size: 10px;
-    letter-spacing: 1px;
-    opacity: 0.7;
-    margin-bottom: 2px;
-}
-
-.hud-value {
-    font-size: 18px;
-    font-variant-numeric: tabular-nums;
-    color: #fff;
-}
-
-/* Инструкции */
-.instructions {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(139, 185, 254, 0.3);
-    border-radius: 12px;
-    padding: 20px;
-    max-width: 500px;
-    width: 90%;
-    transition: opacity 1s ease;
-}
-
-.instructions.fade-out {
-    opacity: 0;
-}
-
-.instruction {
-    margin: 8px 0;
-    font-size: 14px;
-    letter-spacing: 1px;
+/* Шапка игры */
+.game-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: rgba(0, 20, 40, 0.8);
+    border-radius: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(64, 156, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 60, 120, 0.3);
 }
 
-.instruction:before {
-    content: '▸';
-    margin-right: 10px;
-    color: #8bb9fe;
+.header-left .game-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
 }
 
-/* Кнопка паузы */
-.control-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 2;
-    background: rgba(139, 185, 254, 0.1);
-    border: 1px solid rgba(139, 185, 254, 0.3);
+.game-title h1 {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #40c9ff, #e81cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(64, 201, 255, 0.5);
+}
+
+.game-title i {
+    font-size: 36px;
+    color: #40c9ff;
+}
+
+.game-subtitle {
     color: #8bb9fe;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-family: 'Courier New', monospace;
     font-size: 14px;
+    letter-spacing: 2px;
+}
+
+.header-right {
+    display: flex;
+    gap: 40px;
+}
+
+.balance-display, .time-display {
+    text-align: right;
+}
+
+.balance-label, .time-label {
+    color: #8bb9fe;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.balance-amount {
+    font-size: 32px;
+    font-weight: 700;
+    color: #00ff88;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.time-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffcc00;
+    font-family: 'Courier New', monospace;
+}
+
+/* Основное игровое поле */
+.game-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Панели */
+.portfolio-panel,
+.trading-panel,
+.side-panel {
+    background: rgba(0, 20, 40, 0.8);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgba(64, 156, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(64, 156, 255, 0.2);
+}
+
+.panel-header h2 {
+    font-size: 18px;
+    color: #8bb9fe;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Панель портфеля */
+.currencies-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.currency-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 10px;
+    border: 1px solid rgba(64, 156, 255, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.currency-item:hover {
+    background: rgba(0, 40, 80, 0.8);
+    border-color: #40c9ff;
+    transform: translateX(5px);
+}
+
+.currency-item.selected {
+    background: rgba(0, 40, 80, 0.9);
+    border-color: #e81cff;
+    box-shadow: 0 0 20px rgba(232, 28, 255, 0.3);
+}
+
+.currency-icon {
+    font-size: 24px;
+}
+
+.currency-info {
+    flex: 1;
+    margin: 0 15px;
+}
+
+.currency-name {
+    font-weight: 600;
+    color: #fff;
+}
+
+.currency-symbol {
+    color: #8bb9fe;
+    font-size: 12px;
+}
+
+.currency-amount {
+    text-align: right;
+}
+
+.currency-balance {
+    font-weight: 600;
+    color: #00ff88;
+}
+
+.currency-value {
+    color: #8bb9fe;
+    font-size: 12px;
+}
+
+.performance-chart {
+    height: 150px;
+    background: rgba(0, 10, 20, 0.6);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Панель торговли */
+.trading-header {
+    margin-bottom: 20px;
+}
+
+.selected-currency {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 15px;
+    border: 2px solid #40c9ff;
+}
+
+.selected-currency .currency-icon {
+    font-size: 40px;
+}
+
+.currency-name {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.currency-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.currency-price {
+    background: rgba(0, 30, 60, 0.6);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.price-label {
+    color: #8bb9fe;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.price-value {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 5px;
+    color: #fff;
+}
+
+.price-change {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.price-change.positive {
+    color: #00ff88;
+}
+
+.price-change.negative {
+    color: #ff4444;
+}
+
+.currency-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 10px;
+}
+
+.info-item span:first-child {
+    color: #8bb9fe;
+}
+
+.info-item span:last-child {
+    font-weight: 600;
+    color: #fff;
+}
+
+.trading-controls {
+    background: rgba(0, 30, 60, 0.6);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.trade-amount {
+    margin-bottom: 20px;
+}
+
+.amount-label {
+    color: #8bb9fe;
+    margin-bottom: 10px;
+}
+
+.amount-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.amount-btn {
+    width: 40px;
+    height: 40px;
+    background: #40c9ff;
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-size: 20px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-    letter-spacing: 1px;
 }
 
-.control-btn:hover {
-    background: rgba(139, 185, 254, 0.2);
-    border-color: rgba(139, 185, 254, 0.5);
+.amount-btn:hover {
+    background: #e81cff;
+    transform: scale(1.1);
+}
+
+#tradeAmount {
+    flex: 1;
+    height: 40px;
+    background: rgba(0, 10, 20, 0.8);
+    border: 2px solid #40c9ff;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    padding: 0 15px;
+}
+
+.amount-slider input {
+    width: 100%;
+    height: 10px;
+    -webkit-appearance: none;
+    background: linear-gradient(90deg, #40c9ff, #e81cff);
+    border-radius: 5px;
+    outline: none;
+}
+
+.amount-slider input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid #40c9ff;
+}
+
+.trade-buttons {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.trade-btn {
+    flex: 1;
+    height: 60px;
+    border: none;
+    border-radius: 15px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.buy-btn {
+    background: linear-gradient(135deg, #00ff88, #00cc66);
+    color: #000;
+}
+
+.sell-btn {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: #fff;
+}
+
+.trade-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.quick-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.quick-btn {
+    flex: 1;
+    padding: 10px;
+    background: rgba(64, 156, 255, 0.2);
+    border: 1px solid #40c9ff;
+    border-radius: 10px;
+    color: #40c9ff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-btn:hover {
+    background: #40c9ff;
+    color: #000;
+}
+
+.transaction-history {
+    flex: 1;
+    overflow: hidden;
+}
+
+.history-list {
+    height: 200px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.history-item.buy {
+    border-left: 4px solid #00ff88;
+}
+
+.history-item.sell {
+    border-left: 4px solid #ff4444;
+}
+
+/* Панель рейтинга */
+.rankings-panel {
+    margin-bottom: 20px;
+}
+
+.player-rank {
+    background: rgba(0, 30, 60, 0.6);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.rank-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.rank-label {
+    color: #8bb9fe;
+    font-size: 12px;
+}
+
+.rank-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffcc00;
+}
+
+.rank-progress {
+    margin-top: 15px;
+}
+
+.progress-bar {
+    height: 10px;
+    background: rgba(0, 10, 20, 0.8);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #40c9ff, #e81cff);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 12px;
+    color: #8bb9fe;
+    text-align: center;
+}
+
+.leaderboard {
+    flex: 1;
+    overflow: hidden;
+}
+
+.leaderboard-list {
+    height: 200px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 10px;
+}
+
+.leaderboard-rank {
+    color: #ffcc00;
+    font-weight: 700;
+}
+
+.leaderboard-name {
+    flex: 1;
+    margin: 0 15px;
+}
+
+.leaderboard-balance {
+    color: #00ff88;
+    font-weight: 600;
+}
+
+.save-load {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.action-btn {
+    padding: 12px;
+    background: rgba(64, 156, 255, 0.2);
+    border: 1px solid #40c9ff;
+    border-radius: 10px;
+    color: #40c9ff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background: #40c9ff;
+    color: #000;
+}
+
+/* Панель новостей */
+.news-panel {
+    flex: 1;
+    overflow: hidden;
+}
+
+.news-feed {
+    height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.news-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 10px;
+    border-left: 4px solid #40c9ff;
+}
+
+.news-time {
+    color: #8bb9fe;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.news-content {
+    color: #fff;
+    line-height: 1.4;
+}
+
+.news-impact.positive {
+    color: #00ff88;
+}
+
+.news-impact.negative {
+    color: #ff4444;
+}
+
+/* Футер */
+.game-footer {
+    padding: 20px;
+    background: rgba(0, 20, 40, 0.8);
+    border-radius: 20px;
+    border: 1px solid rgba(64, 156, 255, 0.3);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 15px;
+}
+
+.stat-label {
+    color: #8bb9fe;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Модальные окна */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #001428, #000a14);
+    padding: 40px;
+    border-radius: 30px;
+    max-width: 500px;
+    width: 90%;
+    border: 2px solid #40c9ff;
+    box-shadow: 0 0 50px rgba(64, 201, 255, 0.5);
+    text-align: center;
+}
+
+.modal h2 {
+    color: #40c9ff;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+.modal-stats {
+    margin: 30px 0;
+}
+
+.modal-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(0, 30, 60, 0.6);
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+.modal-btn {
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #40c9ff, #e81cff);
+    border: none;
+    border-radius: 15px;
+    color: #000;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(64, 201, 255, 0.4);
+}
+
+.save-slots {
+    margin: 30px 0;
+}
+
+.save-slot {
+    padding: 20px;
+    margin-bottom: 15px;
+    background: rgba(0, 30, 60, 0.6);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.save-slot:hover {
+    border-color: #40c9ff;
+    transform: translateY(-5px);
+}
+
+.save-slot.active {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+}
+
+.slot-header {
+    color: #40c9ff;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.slot-info {
+    color: #8bb9fe;
+    font-size: 14px;
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 20, 40, 0.6);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #40c9ff, #e81cff);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #e81cff, #40c9ff);
 }
 
 /* Адаптивность */
+@media (max-width: 1400px) {
+    .game-main {
+        grid-template-columns: 1fr 1.5fr 1fr;
+    }
+}
+
+@media (max-width: 1200px) {
+    .game-main {
+        grid-template-columns: 1fr 2fr;
+        grid-template-rows: 1fr auto;
+    }
+    
+    .side-panel {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        flex-direction: row;
+        gap: 20px;
+    }
+    
+    .rankings-panel,
+    .news-panel {
+        flex: 1;
+    }
+}
+
 @media (max-width: 768px) {
-    .logo {
-        font-size: 32px;
-        letter-spacing: 4px;
+    .game-container {
+        padding: 10px;
     }
     
-    .loading-bar {
-        width: 300px;
+    .game-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
     }
     
-    .instructions {
-        bottom: 20px;
-        padding: 15px;
+    .side-panel {
+        flex-direction: column;
     }
     
-    .instruction {
-        font-size: 12px;
+    .header-right {
+        flex-direction: column;
+        gap: 15px;
     }
     
-    .hud {
-        top: 10px;
-        right: 10px;
-    }
-    
-    .hud-item {
-        padding: 6px 10px;
-    }
-    
-    .hud-value {
-        font-size: 14px;
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 480px) {
-    .logo {
-        font-size: 24px;
+    .game-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
     }
     
-    .loading-bar {
-        width: 250px;
+    .header-left {
+        text-align: center;
     }
     
-    .instructions {
-        display: none;
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .trade-buttons {
+        flex-direction: column;
     }
 }
