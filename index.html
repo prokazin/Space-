@@ -7,92 +7,71 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Быстрые фиксы прямо в HTML */
-        .container {
+        /* Быстрые фиксы для новых элементов */
+        .selected-amount-display {
+            width: 100%;
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .amount-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+        }
+        
+        .amount-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #007AFF;
+        }
+        
+        .amount-reset {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #FF3B30;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .currencies-grid {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .currency-card {
-            flex: 1;
-            min-width: 300px;
-            max-width: 400px;
-        }
-        
-        .action-buttons {
-            width: 100%;
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .action-btn {
-            flex: 1;
-            height: 50px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .amount-selector {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-            justify-content: center;
+        .amount-reset:hover {
+            background: rgba(255, 59, 48, 0.3);
+            transform: rotate(180deg);
         }
         
         .amount-option {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: white;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 70px;
         }
         
-        .amount-option.active {
-            background: #007AFF;
-            border-color: #007AFF;
-        }
-        
-        .top-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-        }
-        
-        .balance-info {
-            text-align: center;
+        .amount-option:hover {
+            background: rgba(0, 122, 255, 0.2);
+            border-color: rgba(0, 122, 255, 0.5);
         }
     </style>
 </head>
 <body>
     <!-- Фоновое видео -->
     <video autoplay muted loop id="bgVideo">
-        <source src="assets/background.mp4" type="video/mp4">
+        <source src="assets/background.mp4" type="video/m4">
         Ваш браузер не поддерживает видео
     </video>
 
@@ -136,12 +115,25 @@
                         <i class="fas fa-arrow-up change-icon"></i>
                     </div>
                     
-                    <div class="amount-selector">
-                        <button class="amount-option" data-amount="100">100</button>
-                        <button class="amount-option active" data-amount="500">500</button>
-                        <button class="amount-option" data-amount="1000">1000</button>
+                    <!-- ОТОБРАЖЕНИЕ ВЫБРАННОЙ СУММЫ -->
+                    <div class="selected-amount-display">
+                        <div class="amount-label">Сумма сделки:</div>
+                        <div class="amount-value">
+                            <span class="selected-amount" id="usdSelectedAmount">0</span> ₽
+                        </div>
                     </div>
                     
+                    <!-- КНОПКИ ДОБАВЛЕНИЯ СУММЫ -->
+                    <div class="amount-selector">
+                        <button class="amount-option" onclick="addAmount(1, 'USD')">+1</button>
+                        <button class="amount-option" onclick="addAmount(10, 'USD')">+10</button>
+                        <button class="amount-option" onclick="addAmount(100, 'USD')">+100</button>
+                        <button class="amount-reset" onclick="resetAmount('USD')">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- КНОПКИ ДЕЙСТВИЙ -->
                     <div class="action-buttons">
                         <button class="action-btn sell-btn" onclick="tradeCurrency('USD', 'sell')">
                             Продать
@@ -166,12 +158,25 @@
                         <i class="fas fa-arrow-up change-icon"></i>
                     </div>
                     
-                    <div class="amount-selector">
-                        <button class="amount-option" data-amount="100">100</button>
-                        <button class="amount-option active" data-amount="500">500</button>
-                        <button class="amount-option" data-amount="1000">1000</button>
+                    <!-- ОТОБРАЖЕНИЕ ВЫБРАННОЙ СУММЫ -->
+                    <div class="selected-amount-display">
+                        <div class="amount-label">Сумма сделки:</div>
+                        <div class="amount-value">
+                            <span class="selected-amount" id="eurSelectedAmount">0</span> ₽
+                        </div>
                     </div>
                     
+                    <!-- КНОПКИ ДОБАВЛЕНИЯ СУММЫ -->
+                    <div class="amount-selector">
+                        <button class="amount-option" onclick="addAmount(1, 'EUR')">+1</button>
+                        <button class="amount-option" onclick="addAmount(10, 'EUR')">+10</button>
+                        <button class="amount-option" onclick="addAmount(100, 'EUR')">+100</button>
+                        <button class="amount-reset" onclick="resetAmount('EUR')">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- КНОПКИ ДЕЙСТВИЙ -->
                     <div class="action-buttons">
                         <button class="action-btn sell-btn" onclick="tradeCurrency('EUR', 'sell')">
                             Продать
@@ -196,12 +201,25 @@
                         <i class="fas fa-arrow-up change-icon"></i>
                     </div>
                     
-                    <div class="amount-selector">
-                        <button class="amount-option" data-amount="100">100</button>
-                        <button class="amount-option active" data-amount="500">500</button>
-                        <button class="amount-option" data-amount="1000">1000</button>
+                    <!-- ОТОБРАЖЕНИЕ ВЫБРАННОЙ СУММЫ -->
+                    <div class="selected-amount-display">
+                        <div class="amount-label">Сумма сделки:</div>
+                        <div class="amount-value">
+                            <span class="selected-amount" id="cnySelectedAmount">0</span> ₽
+                        </div>
                     </div>
                     
+                    <!-- КНОПКИ ДОБАВЛЕНИЯ СУММЫ -->
+                    <div class="amount-selector">
+                        <button class="amount-option" onclick="addAmount(1, 'CNY')">+1</button>
+                        <button class="amount-option" onclick="addAmount(10, 'CNY')">+10</button>
+                        <button class="amount-option" onclick="addAmount(100, 'CNY')">+100</button>
+                        <button class="amount-reset" onclick="resetAmount('CNY')">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- КНОПКИ ДЕЙСТВИЙ -->
                     <div class="action-buttons">
                         <button class="action-btn sell-btn" onclick="tradeCurrency('CNY', 'sell')">
                             Продать
@@ -217,7 +235,7 @@
         <!-- Подсказка -->
         <div class="hint">
             <i class="fas fa-info-circle"></i>
-            <span>Нажмите на сумму для выбора, затем нажмите Купить/Продать</span>
+            <span>Нажимайте +1, +10, +100 чтобы набрать сумму, затем Купить/Продать</span>
         </div>
     </div>
 
