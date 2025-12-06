@@ -7,7 +7,36 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Быстрые фиксы для новых элементов */
+        /* Стили для видео */
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.3;
+            display: block;
+            background: #000; /* Фон на случай если видео не загрузится */
+        }
+        
+        /* Запасной градиентный фон */
+        .bg-fallback {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(135deg, 
+                #0f0c29 0%,
+                #302b63 50%,
+                #24243e 100%);
+            opacity: 0.8;
+        }
+        
+        /* Остальные стили остаются как были */
         .selected-amount-display {
             width: 100%;
             text-align: center;
@@ -69,9 +98,16 @@
     </style>
 </head>
 <body>
-    <!-- Фоновое видео -->
-    <video autoplay muted loop id="bgVideo">
-        <source src="assets/background.MP4" type="video/m4">
+    <!-- Запасной градиентный фон -->
+    <div class="bg-fallback"></div>
+    
+    <!-- Основное видео -->
+    <video autoplay muted loop playsinline id="bgVideo">
+        <!-- Пробуем разные источники по порядку -->
+        <source src="https://cdn.jsdelivr.net/gh/prokazin/Space-/assets/background.MP4" type="video/mp4">
+        <source src="https://raw.githubusercontent.com/prokazin/Space-/main/assets/background.MP4" type="video/mp4">
+        <source src="assets/background.MP4" type="video/mp4">
+        <source src="./assets/background.MP4" type="video/mp4">
         Ваш браузер не поддерживает видео
     </video>
 
@@ -115,7 +151,6 @@
                         <i class="fas fa-arrow-up change-icon"></i>
                     </div>
                     
-                    <!-- ОТОБРАЖЕНИЕ ВЫБРАННОЙ СУММЫ -->
                     <div class="selected-amount-display">
                         <div class="amount-label">Сумма сделки:</div>
                         <div class="amount-value">
@@ -123,7 +158,6 @@
                         </div>
                     </div>
                     
-                    <!-- КНОПКИ ДОБАВЛЕНИЯ СУММЫ -->
                     <div class="amount-selector">
                         <button class="amount-option" onclick="addAmount(1, 'USD')">+1</button>
                         <button class="amount-option" onclick="addAmount(10, 'USD')">+10</button>
@@ -133,7 +167,6 @@
                         </button>
                     </div>
                     
-                    <!-- КНОПКИ ДЕЙСТВИЙ -->
                     <div class="action-buttons">
                         <button class="action-btn sell-btn" onclick="tradeCurrency('USD', 'sell')">
                             Продать
@@ -158,7 +191,6 @@
                         <i class="fas fa-arrow-up change-icon"></i>
                     </div>
                     
-                    <!-- ОТОБРАЖЕНИЕ ВЫБРАННОЙ СУММЫ -->
                     <div class="selected-amount-display">
                         <div class="amount-label">Сумма сделки:</div>
                         <div class="amount-value">
@@ -166,7 +198,6 @@
                         </div>
                     </div>
                     
-                    <!-- КНОПКИ ДОБАВЛЕНИЯ СУММЫ -->
                     <div class="amount-selector">
                         <button class="amount-option" onclick="addAmount(1, 'EUR')">+1</button>
                         <button class="amount-option" onclick="addAmount(10, 'EUR')">+10</button>
@@ -176,7 +207,6 @@
                         </button>
                     </div>
                     
-                    <!-- КНОПКИ ДЕЙСТВИЙ -->
                     <div class="action-buttons">
                         <button class="action-btn sell-btn" onclick="tradeCurrency('EUR', 'sell')">
                             Продать
@@ -201,7 +231,6 @@
                         <i class="fas fa-arrow-up change-icon"></i>
                     </div>
                     
-                    <!-- ОТОБРАЖЕНИЕ ВЫБРАННОЙ СУММЫ -->
                     <div class="selected-amount-display">
                         <div class="amount-label">Сумма сделки:</div>
                         <div class="amount-value">
@@ -209,7 +238,6 @@
                         </div>
                     </div>
                     
-                    <!-- КНОПКИ ДОБАВЛЕНИЯ СУММЫ -->
                     <div class="amount-selector">
                         <button class="amount-option" onclick="addAmount(1, 'CNY')">+1</button>
                         <button class="amount-option" onclick="addAmount(10, 'CNY')">+10</button>
@@ -219,7 +247,6 @@
                         </button>
                     </div>
                     
-                    <!-- КНОПКИ ДЕЙСТВИЙ -->
                     <div class="action-buttons">
                         <button class="action-btn sell-btn" onclick="tradeCurrency('CNY', 'sell')">
                             Продать
@@ -232,14 +259,13 @@
             </div>
         </main>
 
-        <!-- Подсказка -->
         <div class="hint">
             <i class="fas fa-info-circle"></i>
             <span>Нажимайте +1, +10, +100 чтобы набрать сумму, затем Купить/Продать</span>
         </div>
     </div>
 
-    <!-- Модальное окно рейтинга -->
+    <!-- Модальные окна -->
     <div id="ratingModal" class="modal">
         <div class="modal-backdrop" onclick="closeModal()"></div>
         <div class="modal-container ios-modal">
@@ -248,14 +274,11 @@
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="rating-list" id="ratingList">
-                    <!-- Рейтинг загружается здесь -->
-                </div>
+                <div class="rating-list" id="ratingList"></div>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно портфеля -->
     <div id="portfolioModal" class="modal">
         <div class="modal-backdrop" onclick="closeModal()"></div>
         <div class="modal-container ios-modal">
@@ -289,5 +312,52 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Дополнительный скрипт для гарантированного запуска видео
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('bgVideo');
+            
+            // Пытаемся запустить видео
+            if (video) {
+                video.play().catch(function(error) {
+                    console.log('Автозапуск видео заблокирован, показываем кнопку:', error);
+                    
+                    // Создаем кнопку для ручного запуска
+                    const playButton = document.createElement('button');
+                    playButton.innerHTML = '▶️ Включить фон';
+                    playButton.style.cssText = `
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        padding: 12px 24px;
+                        background: linear-gradient(135deg, #667eea, #764ba2);
+                        color: white;
+                        border: none;
+                        border-radius: 25px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        z-index: 9999;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    `;
+                    
+                    playButton.onclick = function() {
+                        video.play();
+                        playButton.style.display = 'none';
+                    };
+                    
+                    document.body.appendChild(playButton);
+                });
+            }
+            
+            // Проверяем загрузилось ли видео через 5 секунд
+            setTimeout(function() {
+                if (video && video.readyState < 2) {
+                    console.log('Видео не загрузилось, используем градиентный фон');
+                    video.style.display = 'none';
+                }
+            }, 5000);
+        });
+    </script>
 </body>
 </html>
