@@ -13,6 +13,7 @@
     --primary: #007AFF;
     --success: #34C759;
     --danger: #FF3B30;
+    --warning: #FF9500;
     --text: #FFFFFF;
     --text-secondary: rgba(255, 255, 255, 0.7);
 }
@@ -34,55 +35,59 @@ body {
     height: 100%;
     object-fit: cover;
     z-index: -1;
-    opacity: 0.15;
+    opacity: 0.3;
 }
 
+/* КОНТЕЙНЕР - ЦЕНТРИРОВАНИЕ */
 .container {
     max-width: 100%;
     min-height: 100vh;
-    padding: 15px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-/* Уведомление */
+/* УВЕДОМЛЕНИЕ */
 .notification {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
+    background: var(--primary);
+    padding: 15px 20px;
+    text-align: center;
     z-index: 1000;
-    padding: 15px;
-    display: none;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .notification.show {
-    display: block;
+    transform: translateY(0);
 }
 
 .notification-content {
-    background: var(--ios-bg);
-    backdrop-filter: var(--ios-blur);
-    border: 1px solid var(--ios-border);
-    border-radius: 14px;
-    padding: 15px 20px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
-    box-shadow: var(--ios-shadow);
+    font-weight: 500;
 }
 
 .notification-content i {
-    color: var(--primary);
     font-size: 1.2rem;
 }
 
-/* Верхняя панель */
+/* ВЕРХНЯЯ ПАНЕЛЬ */
 .top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
+    width: 100%;
+    max-width: 1200px;
+    padding: 15px 0;
     margin-bottom: 20px;
 }
 
@@ -102,13 +107,15 @@ body {
     transition: all 0.3s ease;
 }
 
-.icon-btn:hover {
+.icon-btn:active {
+    transform: scale(0.95);
     background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.05);
 }
 
 .balance-info {
     text-align: center;
+    flex: 1;
+    padding: 0 20px;
 }
 
 .balance-amount {
@@ -124,16 +131,18 @@ body {
     font-weight: 500;
 }
 
-/* Сетка валют */
+/* СЕТКА ВАЛЮТ - ЦЕНТРИРОВАННАЯ */
 .currencies-grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px 0;
 }
 
-/* Карточка в стиле iOS */
+/* КАРТОЧКА ВАЛЮТЫ iOS-СТИЛЬ */
 .currency-card.ios-style {
     background: var(--ios-bg);
     backdrop-filter: var(--ios-blur);
@@ -142,15 +151,13 @@ body {
     overflow: hidden;
     transition: all 0.3s ease;
     box-shadow: var(--ios-shadow);
-}
-
-.currency-card.ios-style:hover {
-    transform: translateY(-5px);
-    border-color: rgba(255, 255, 255, 0.25);
+    min-width: 300px;
+    max-width: 400px;
+    width: 100%;
 }
 
 .currency-content {
-    padding: 20px;
+    padding: 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -161,7 +168,7 @@ body {
     width: 60px;
     height: 60px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -180,11 +187,8 @@ body {
 .currency-price {
     font-size: 2.2rem;
     font-weight: 800;
-    margin-bottom: 10px;
-    background: linear-gradient(135deg, #00b09b, #96c93d);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    margin: 10px 0;
+    color: white;
 }
 
 .currency-change {
@@ -218,12 +222,13 @@ body {
     border: 1px solid rgba(255, 59, 48, 0.3);
 }
 
-/* Выбор суммы */
+/* ВЫБОР СУММЫ */
 .amount-selector {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin: 20px 0;
     width: 100%;
+    justify-content: center;
 }
 
 .amount-option {
@@ -237,10 +242,11 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-width: 70px;
 }
 
-.amount-option:hover {
-    background: rgba(255, 255, 255, 0.1);
+.amount-option:active {
+    transform: scale(0.95);
 }
 
 .amount-option.active {
@@ -249,16 +255,17 @@ body {
     border-color: var(--primary);
 }
 
-/* Кнопки действий */
+/* КНОПКИ ДЕЙСТВИЙ - ФИКСИРОВАННЫЕ */
 .action-buttons {
     display: flex;
     gap: 10px;
     width: 100%;
+    margin-top: 10px;
 }
 
 .action-btn {
     flex: 1;
-    padding: 14px;
+    padding: 16px;
     border: none;
     border-radius: 12px;
     font-size: 1rem;
@@ -266,41 +273,39 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     letter-spacing: 0.3px;
+    min-height: 50px;
 }
 
-.action-btn.sell {
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+.action-btn.sell-btn {
     background: linear-gradient(135deg, #FF416C, #FF4B2B);
     color: white;
 }
 
-.action-btn.buy {
+.action-btn.buy-btn {
     background: linear-gradient(135deg, #00b09b, #96c93d);
     color: white;
 }
 
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.action-btn:active {
-    transform: translateY(0);
-}
-
-/* Подсказка */
+/* ПОДСКАЗКА */
 .hint {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 15px;
+    padding: 15px 20px;
     background: var(--ios-bg);
     backdrop-filter: var(--ios-blur);
     border: 1px solid var(--ios-border);
     border-radius: 14px;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin-top: auto;
+    margin-top: 20px;
+    max-width: 1200px;
+    width: 100%;
 }
 
 .hint i {
@@ -308,7 +313,7 @@ body {
     font-size: 1rem;
 }
 
-/* Модальные окна iOS */
+/* МОДАЛЬНЫЕ ОКНА */
 .modal {
     position: fixed;
     top: 0;
@@ -317,10 +322,12 @@ body {
     height: 100%;
     z-index: 2000;
     display: none;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal.show {
-    display: block;
+    display: flex;
 }
 
 .modal-backdrop {
@@ -334,25 +341,26 @@ body {
 }
 
 .modal-container.ios-modal {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: relative;
     background: var(--ios-bg);
     backdrop-filter: var(--ios-blur);
-    border-top: 1px solid var(--ios-border);
-    border-radius: 24px 24px 0 0;
-    max-height: 85vh;
+    border: 1px solid var(--ios-border);
+    border-radius: 24px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
     overflow-y: auto;
-    animation: slideUp 0.3s ease;
+    animation: modalShow 0.3s ease;
 }
 
-@keyframes slideUp {
+@keyframes modalShow {
     from {
-        transform: translateY(100%);
+        opacity: 0;
+        transform: scale(0.9);
     }
     to {
-        transform: translateY(0);
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
@@ -387,7 +395,7 @@ body {
     transition: all 0.3s ease;
 }
 
-.modal-close:hover {
+.modal-close:active {
     background: rgba(255, 255, 255, 0.15);
 }
 
@@ -395,11 +403,11 @@ body {
     padding: 20px;
 }
 
-/* Компактный рейтинг */
-.rating-list.compact {
+/* РЕЙТИНГ */
+.rating-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .rating-item {
@@ -409,16 +417,11 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.3s ease;
 }
 
 .rating-item.current {
     background: rgba(0, 122, 255, 0.15);
     border-color: rgba(0, 122, 255, 0.3);
-}
-
-.rating-item:hover {
-    background: rgba(255, 255, 255, 0.08);
 }
 
 .rating-rank {
@@ -445,60 +448,47 @@ body {
     font-size: 1.1rem;
 }
 
-/* Портфель в модалке */
-.portfolio-summary {
+/* ПОРТФЕЛЬ */
+.portfolio-items {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
 .portfolio-item {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     padding: 15px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 14px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.item-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 122, 255, 0.15);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    font-size: 1.2rem;
-    color: var(--primary);
-}
-
-.item-info {
-    flex: 1;
-}
-
-.item-name {
+.currency-name {
     font-weight: 600;
-    margin-bottom: 2px;
-}
-
-.item-amount {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.item-value {
-    font-weight: 700;
-    color: var(--success);
     font-size: 1.1rem;
+    min-width: 60px;
+}
+
+.currency-amount {
+    flex: 1;
+    text-align: center;
+    font-weight: 500;
+}
+
+.currency-value {
+    font-weight: bold;
+    color: var(--success);
+    min-width: 80px;
+    text-align: right;
 }
 
 .portfolio-total {
     padding: 20px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 14px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     text-align: center;
 }
@@ -515,20 +505,19 @@ body {
     color: var(--success);
 }
 
-/* Адаптивность для телефонов */
+/* АДАПТИВНОСТЬ */
 @media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
     .currencies-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
+        flex-direction: column;
+        align-items: center;
     }
     
     .currency-card.ios-style {
         max-width: 100%;
-        margin: 0 auto;
-    }
-    
-    .container {
-        padding: 10px;
     }
     
     .balance-amount {
@@ -538,19 +527,15 @@ body {
     .currency-price {
         font-size: 2rem;
     }
-    
-    .modal-container.ios-modal {
-        max-height: 80vh;
-    }
 }
 
 @media (max-width: 480px) {
-    .currencies-grid {
-        gap: 15px;
+    .container {
+        padding: 10px;
     }
     
     .currency-content {
-        padding: 15px;
+        padding: 20px;
     }
     
     .currency-price {
@@ -558,58 +543,37 @@ body {
     }
     
     .amount-selector {
-        gap: 8px;
+        flex-wrap: wrap;
     }
     
     .amount-option {
-        padding: 10px;
-        font-size: 0.9rem;
-    }
-    
-    .action-btn {
-        padding: 12px;
-        font-size: 0.95rem;
+        min-width: calc(33.333% - 7px);
     }
     
     .modal-container.ios-modal {
-        border-radius: 20px 20px 0 0;
-    }
-    
-    .portfolio-item {
-        padding: 12px;
-    }
-    
-    .item-value {
-        font-size: 1rem;
+        width: 95%;
     }
 }
 
-@media (max-width: 380px) {
-    .top-bar {
-        margin-bottom: 15px;
-    }
-    
-    .currency-content {
-        padding: 12px;
-    }
-    
-    .currency-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
-    }
-    
-    .currency-price {
-        font-size: 1.6rem;
-    }
-    
-    .amount-selector {
-        flex-direction: column;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-    }
+/* АНИМАЦИИ ДЛЯ ЦЕН */
+@keyframes priceUp {
+    0% { color: inherit; }
+    50% { color: var(--success); }
+    100% { color: inherit; }
+}
+
+@keyframes priceDown {
+    0% { color: inherit; }
+    50% { color: var(--danger); }
+    100% { color: inherit; }
+}
+
+.price-up {
+    animation: priceUp 0.5s ease;
+}
+
+.price-down {
+    animation: priceDown 0.5s ease;
 }
 
 /* Полоса прокрутки */
@@ -624,29 +588,4 @@ body {
 ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-/* Анимации для обновления цены */
-.price-up {
-    animation: priceUp 0.5s ease;
-}
-
-.price-down {
-    animation: priceDown 0.5s ease;
-}
-
-@keyframes priceUp {
-    0% { color: inherit; }
-    50% { color: var(--success); }
-    100% { color: inherit; }
-}
-
-@keyframes priceDown {
-    0% { color: inherit; }
-    50% { color: var(--danger); }
-    100% { color: inherit; }
 }
