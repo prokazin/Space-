@@ -3,65 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Currency Flow</title>
+    <title>Валютный Трейдер</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💱</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Баланс пользователя -->
-        <div class="balance">
-            <div class="balance-title">ВАШ БАЛАНС</div>
-            <div class="balance-amount" id="totalBalance">100 000 ₽</div>
-        </div>
+    <!-- Фоновое видео -->
+    <video autoplay muted loop id="bgVideo">
+        <source src="assets/background.mp4" type="video/mp4">
+    </video>
 
-        <!-- Список валют -->
-        <div class="currencies" id="currenciesList">
-            <!-- Валюты будут добавляться через JS -->
-        </div>
-
-        <!-- Панель обмена -->
-        <div class="exchange-panel">
-            <div class="selected-currency" id="selectedCurrencyInfo">
-                <div class="selected-icon">💱</div>
-                <div class="selected-name">Выберите валюту</div>
-            </div>
-
-            <div class="price-info">
-                <div class="current-price" id="currentPrice">0 ₽</div>
-                <div class="price-change" id="priceChange">0%</div>
-            </div>
-
-            <div class="controls">
-                <div class="amount-control">
-                    <div class="amount-label">СУММА</div>
-                    <div class="amount-inputs">
-                        <button class="amount-btn minus">−</button>
-                        <input type="number" id="tradeAmount" value="1000" min="100" max="100000">
-                        <button class="amount-btn plus">+</button>
-                    </div>
-                    <div class="quick-buttons">
-                        <button class="quick-btn" data-percent="25">25%</button>
-                        <button class="quick-btn" data-percent="50">50%</button>
-                        <button class="quick-btn" data-percent="100">100%</button>
-                    </div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="action-btn buy" id="buyBtn">КУПИТЬ</button>
-                    <button class="action-btn sell" id="sellBtn">ПРОДАТЬ</button>
-                </div>
-            </div>
-
-            <div class="portfolio">
-                <div class="portfolio-title">ВАШИ АКТИВЫ</div>
-                <div class="portfolio-amount" id="portfolioAmount">0</div>
-            </div>
-        </div>
+    <!-- Уведомление -->
+    <div id="notification" class="notification hidden">
+        <div id="notificationContent"></div>
     </div>
 
-    <!-- Уведомления -->
-    <div class="notification" id="notification"></div>
+    <div class="container">
+        <!-- Заголовок -->
+        <header>
+            <h1><i class="fas fa-chart-line"></i> Валютный Трейдер</h1>
+            <div class="player-info">
+                <div class="balance">
+                    <span id="balance">1500₽</span>
+                    <div class="rating">
+                        <i class="fas fa-trophy"></i> Рейтинг: <span id="rank">-</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Основной контент -->
+        <main>
+            <div class="game-grid">
+                <!-- Блок курсов валют -->
+                <section class="currency-rates card">
+                    <h2><i class="fas fa-exchange-alt"></i> Курсы валют</h2>
+                    <div class="rates-grid">
+                        <div class="rate-card" id="usdCard">
+                            <div class="currency-header">
+                                <i class="fas fa-dollar-sign"></i>
+                                <h3>USD/RUB</h3>
+                            </div>
+                            <div class="rate-value" id="usdRate">80.50</div>
+                            <div class="rate-change" id="usdChange">+0.00%</div>
+                            <button class="trade-btn buy-btn" onclick="tradeCurrency('USD', 'buy')">
+                                <i class="fas fa-arrow-up"></i> Купить
+                            </button>
+                            <button class="trade-btn sell-btn" onclick="tradeCurrency('USD', 'sell')">
+                                <i class="fas fa-arrow-down"></i> Продать
+                            </button>
+                        </div>
+
+                        <div class="rate-card" id="eurCard">
+                            <div class="currency-header">
+                                <i class="fas fa-euro-sign"></i>
+                                <h3>EUR/RUB</h3>
+                            </div>
+                            <div class="rate-value" id="eurRate">90.25</div>
+                            <div class="rate-change" id="eurChange">+0.00%</div>
+                            <button class="trade-btn buy-btn" onclick="tradeCurrency('EUR', 'buy')">
+                                <i class="fas fa-arrow-up"></i> Купить
+                            </button>
+                            <button class="trade-btn sell-btn" onclick="tradeCurrency('EUR', 'sell')">
+                                <i class="fas fa-arrow-down"></i> Продать
+                            </button>
+                        </div>
+
+                        <div class="rate-card" id="cnyCard">
+                            <div class="currency-header">
+                                <i class="fas fa-yen-sign"></i>
+                                <h3>CNY/RUB</h3>
+                            </div>
+                            <div class="rate-value" id="cnyRate">11.80</div>
+                            <div class="rate-change" id="cnyChange">+0.00%</div>
+                            <button class="trade-btn buy-btn" onclick="tradeCurrency('CNY', 'buy')">
+                                <i class="fas fa-arrow-up"></i> Купить
+                            </button>
+                            <button class="trade-btn sell-btn" onclick="tradeCurrency('CNY', 'sell')">
+                                <i class="fas fa-arrow-down"></i> Продать
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Блок портфеля -->
+                <section class="portfolio card">
+                    <h2><i class="fas fa-wallet"></i> Мой портфель</h2>
+                    <div class="portfolio-list">
+                        <div class="portfolio-item">
+                            <span>USD</span>
+                            <span id="usdAmount">0</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span>EUR</span>
+                            <span id="eurAmount">0</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span>CNY</span>
+                            <span id="cnyAmount">0</span>
+                        </div>
+                    </div>
+                    <div class="total-value">
+                        Общая стоимость: <span id="totalValue">1500₽</span>
+                    </div>
+                </section>
+
+                <!-- Блок сделки -->
+                <section class="trade-section card">
+                    <h2><i class="fas fa-handshake"></i> Сделка</h2>
+                    <div class="trade-form">
+                        <div class="form-group">
+                            <label for="currencySelect">Валюта:</label>
+                            <select id="currencySelect">
+                                <option value="USD">USD - Доллар США</option>
+                                <option value="EUR">EUR - Евро</option>
+                                <option value="CNY">CNY - Китайский юань</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Сумма:</label>
+                            <input type="number" id="amount" min="1" value="100" step="10">
+                            <div class="quick-buttons">
+                                <button class="quick-btn" onclick="setAmount(50)">50</button>
+                                <button class="quick-btn" onclick="setAmount(100)">100</button>
+                                <button class="quick-btn" onclick="setAmount(500)">500</button>
+                                <button class="quick-btn" onclick="setAmount(1000)">1000</button>
+                            </div>
+                        </div>
+                        <div class="trade-buttons">
+                            <button class="action-btn buy-action" onclick="executeTrade('buy')">
+                                <i class="fas fa-shopping-cart"></i> Купить
+                            </button>
+                            <button class="action-btn sell-action" onclick="executeTrade('sell')">
+                                <i class="fas fa-cash-register"></i> Продать
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Блок новостей -->
+                <section class="news-section card">
+                    <h2><i class="fas fa-newspaper"></i> Финансовые новости</h2>
+                    <div class="news-list" id="newsList">
+                        <!-- Новости будут загружаться здесь -->
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Панель управления -->
+        <footer class="control-panel">
+            <button class="control-btn" onclick="saveGame()">
+                <i class="fas fa-save"></i> Сохранить
+            </button>
+            <button class="control-btn" onclick="loadGame()">
+                <i class="fas fa-download"></i> Загрузить
+            </button>
+            <button class="control-btn" onclick="resetGame()">
+                <i class="fas fa-redo"></i> Сбросить
+            </button>
+            <button class="control-btn" id="soundToggle">
+                <i class="fas fa-volume-up"></i> Звук
+            </button>
+        </footer>
+    </div>
+
+    <!-- Модальное окно рейтинга -->
+    <div id="ratingModal" class="modal hidden">
+        <div class="modal-content">
+            <h2><i class="fas fa-trophy"></i> Рейтинг игроков</h2>
+            <div class="rating-list" id="ratingList">
+                <!-- Рейтинг будет загружаться здесь -->
+            </div>
+            <button class="close-btn" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
