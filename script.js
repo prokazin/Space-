@@ -1,467 +1,421 @@
-class CurrencyFlow {
-    constructor() {
-        // Игровое состояние
-        this.state = {
-            balance: 100000, // в рублях
-            currencies: {},
-            selectedCurrency: null,
-            portfolio: {},
-            totalTrades: 0
-        };
+// Основные переменные игры
+let gameState = {
+    balance: 1500,
+    portfolio: {
+        USD: 0,
+        EUR: 0,
+        CNY: 0
+    },
+    rates: {
+        USD: 80.50,
+        EUR: 90.25,
+        CNY: 11.80
+    },
+    previousRates: {
+        USD: 80.50,
+        EUR: 90.25,
+        CNY: 11.80
+    },
+    news: [],
+    gameStarted: new Date(),
+    soundEnabled: true
+};
 
-        // DOM элементы
-        this.totalBalanceElement = document.getElementById('totalBalance');
-        this.currenciesListElement = document.getElementById('currenciesList');
-        this.selectedCurrencyInfo = document.getElementById('selectedCurrencyInfo');
-        this.currentPriceElement = document.getElementById('currentPrice');
-        this.priceChangeElement = document.getElementById('priceChange');
-        this.tradeAmountInput = document.getElementById('tradeAmount');
-        this.portfolioAmountElement = document.getElementById('portfolioAmount');
-        this.notificationElement = document.getElementById('notification');
-        this.buyButton = document.getElementById('buyBtn');
-        this.sellButton = document.getElementById('sellBtn');
+// Новости с влиянием на курсы
+const newsData = [
+    { text: "ЦБ повысил ключевую ставку", impact: { USD: 0.03, EUR: 0.02, CNY: 0.01 }, type: "positive" },
+    { text: "Падение цен на нефть", impact: { USD: -0.04, EUR: -0.02, CNY: -0.01 }, type: "negative" },
+    { text: "Новые санкции против России", impact: { USD: 0.05, EUR: 0.03, CNY: 0.02 }, type: "negative" },
+    { text: "Китай увеличил экспорт", impact: { USD: 0.01, EUR: 0.01, CNY: -0.03 }, type: "positive" },
+    { text: "ЕЦБ сохранил ставки", impact: { USD: -0.02, EUR: 0.02, CNY: 0.01 }, type: "neutral" },
+    { text: "Рост ВВП США", impact: { USD: -0.03, EUR: 0.01, CNY: 0.01 }, type: "positive" },
+    { text: "Инфляция в еврозоне снизилась", impact: { USD: 0.01, EUR: -0.02, CNY: 0.01 }, type: "positive" },
+    { text: "Торговые переговоры провалились", impact: { USD: 0.04, EUR: 0.03, CNY: 0.05 }, type: "negative" },
+    { text: "Криптовалюты резко выросли", impact: { USD: 0.02, EUR: 0.01, CNY: 0.01 }, type: "neutral" },
+    { text: "Доллар укрепился на мировом рынке", impact: { USD: -0.04, EUR: 0.02, CNY: 0.02 }, type: "positive" },
+    { text: "Евро ослаб из-за политических рисков", impact: { USD: 0.01, EUR: 0.04, CNY: 0.01 }, type: "negative" },
+    { text: "Юань стабилизировался", impact: { USD: 0.01, EUR: 0.01, CNY: -0.02 }, type: "positive" },
+    { text: "Золото подорожал на 5%", impact: { USD: 0.02, EUR: 0.02, CNY: 0.02 }, type: "positive" },
+    { text: "ФРС готовится к смягчению политики", impact: { USD: 0.03, EUR: 0.01, CNY: 0.01 }, type: "negative" },
+    { text: "Банки повысили прогнозы по рублю", impact: { USD: -0.03, EUR: -0.02, CNY: -0.02 }, type: "positive" },
+    { text: "Нефть Brent превысила $90", impact: { USD: -0.02, EUR: -0.01, CNY: -0.01 }, type: "positive" },
+    { text: "Акции российских компаний упали", impact: { USD: 0.03, EUR: 0.02, CNY: 0.02 }, type: "negative" },
+    { text: "Китай снизил ставки по кредитам", impact: { USD: 0.01, EUR: 0.01, CNY: -0.04 }, type: "positive" },
+    { text: "Турецкая лира обновила минимум", impact: { USD: 0.02, EUR: 0.02, CNY: 0.01 }, type: "neutral" },
+    { text: "Япония вмешалась в курс йены", impact: { USD: 0.01, EUR: 0.01, CNY: 0.01 }, type: "neutral" }
+];
 
-        // Инициализация валют
-        this.initCurrencies();
-        this.initEventListeners();
-        this.startPriceUpdates();
-        this.updateUI();
+// Инициализация игры
+function initGame() {
+    loadGame();
+    updateDisplay();
+    startRateFluctuation();
+    showRandomNews();
+    updateRanking();
+    
+    // Обновление рейтинга каждые 30 секунд
+    setInterval(updateRanking, 30000);
+    
+    // Генерация новостей каждые 10-30 секунд
+    setInterval(showRandomNews, Math.random() * 20000 + 10000);
+}
+
+// Флуктуация курсов
+function startRateFluctuation() {
+    setInterval(() => {
+        gameState.previousRates = { ...gameState.rates };
+        
+        // Случайные изменения курсов
+        gameState.rates.USD *= (1 + (Math.random() * 0.1 - 0.05));
+        gameState.rates.EUR *= (1 + (Math.random() * 0.1 - 0.05));
+        gameState.rates.CNY *= (1 + (Math.random() * 0.08 - 0.04));
+        
+        // Ограничение курсов
+        gameState.rates.USD = Math.max(10, Math.min(200, gameState.rates.USD));
+        gameState.rates.EUR = Math.max(20, Math.min(300, gameState.rates.EUR));
+        gameState.rates.CNY = Math.max(5, Math.min(50, gameState.rates.CNY));
+        
+        updateDisplay();
+    }, 3000);
+}
+
+// Показать случайную новость
+function showRandomNews() {
+    const newsIndex = Math.floor(Math.random() * newsData.length);
+    const newsItem = newsData[newsIndex];
+    const timestamp = new Date().toLocaleTimeString();
+    
+    // Применить влияние новости к курсам
+    Object.keys(newsItem.impact).forEach(currency => {
+        gameState.rates[currency] *= (1 + newsItem.impact[currency]);
+    });
+    
+    // Добавить новость в историю
+    const newsEntry = {
+        text: newsItem.text,
+        type: newsItem.type,
+        time: timestamp,
+        impact: newsItem.impact
+    };
+    
+    gameState.news.unshift(newsEntry);
+    if (gameState.news.length > 20) {
+        gameState.news.pop();
     }
+    
+    // Показать уведомление
+    showNotification(newsItem.text, newsItem.type);
+    
+    // Обновить отображение
+    updateNewsDisplay();
+    updateDisplay();
+}
 
-    initCurrencies() {
-        this.state.currencies = {
-            'USD': {
-                id: 'USD',
-                name: 'Доллар США',
-                symbol: 'USD',
-                icon: '💵',
-                basePrice: 90, // начальный курс к рублю
-                volatility: 0.08, // волатильность
-                trend: 0, // тренд
-                color: '#00ff9d',
-                history: []
-            },
-            'EUR': {
-                id: 'EUR',
-                name: 'Евро',
-                symbol: 'EUR',
-                icon: '💶',
-                basePrice: 100,
-                volatility: 0.07,
-                trend: 0,
-                color: '#4d94ff',
-                history: []
-            },
-            'CNY': {
-                id: 'CNY',
-                name: 'Китайский юань',
-                symbol: 'CNY',
-                icon: '💴',
-                basePrice: 12,
-                volatility: 0.05,
-                trend: 0,
-                color: '#ffcc00',
-                history: []
-            },
-            'JPY': {
-                id: 'JPY',
-                name: 'Японская йена',
-                symbol: 'JPY',
-                icon: '🏯',
-                basePrice: 0.6,
-                volatility: 0.1,
-                trend: 0,
-                color: '#ff6666',
-                history: []
-            },
-            'GBP': {
-                id: 'GBP',
-                name: 'Фунт стерлингов',
-                symbol: 'GBP',
-                icon: '👑',
-                basePrice: 115,
-                volatility: 0.09,
-                trend: 0,
-                color: '#9966ff',
-                history: []
-            },
-            'CHF': {
-                id: 'CHF',
-                name: 'Швейцарский франк',
-                symbol: 'CHF',
-                icon: '⛰️',
-                basePrice: 105,
-                volatility: 0.06,
-                trend: 0,
-                color: '#66ffcc',
-                history: []
-            }
-        };
-
-        // Инициализация портфеля
-        Object.keys(this.state.currencies).forEach(currencyId => {
-            this.state.portfolio[currencyId] = 0;
-            const currency = this.state.currencies[currencyId];
-            currency.history = [currency.basePrice];
-        });
-
-        // Выбор первой валюты
-        this.selectCurrency('USD');
-        this.renderCurrencies();
+// Показать уведомление
+function showNotification(text, type) {
+    const notification = document.getElementById('notification');
+    const content = document.getElementById('notificationContent');
+    
+    notification.className = `notification ${type}`;
+    content.textContent = text;
+    notification.classList.remove('hidden');
+    
+    // Воспроизвести звук
+    if (gameState.soundEnabled) {
+        playNotificationSound();
     }
+    
+    // Скрыть уведомление через 5 секунд
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 5000);
+}
 
-    initEventListeners() {
-        // Кнопки покупки/продажи
-        this.buyButton.addEventListener('click', () => this.trade('buy'));
-        this.sellButton.addEventListener('click', () => this.trade('sell'));
-
-        // Кнопки изменения суммы
-        document.querySelectorAll('.amount-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const isPlus = e.target.classList.contains('plus');
-                this.adjustAmount(isPlus ? 1000 : -1000);
-            });
-        });
-
-        // Быстрые проценты
-        document.querySelectorAll('.quick-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const percent = parseInt(e.target.dataset.percent);
-                this.setAmountByPercent(percent);
-            });
-        });
-
-        // Ручной ввод суммы
-        this.tradeAmountInput.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value) || 1000;
-            if (value < 100) value = 100;
-            if (value > 100000) value = 100000;
-            e.target.value = value;
-        });
-
-        // Touch events для лучшей мобильной реакции
-        document.addEventListener('touchstart', () => {}, { passive: true });
-    }
-
-    startPriceUpdates() {
-        // Быстрое обновление цен каждые 2 секунды
-        setInterval(() => this.updateAllPrices(), 2000);
-        
-        // Случайные рыночные события каждые 10-30 секунд
-        setInterval(() => this.marketEvent(), Math.random() * 20000 + 10000);
-    }
-
-    updateAllPrices() {
-        Object.keys(this.state.currencies).forEach(currencyId => {
-            const currency = this.state.currencies[currencyId];
-            
-            // Генерируем изменение цены
-            let change = (Math.random() - 0.5) * 2 * currency.volatility;
-            
-            // Добавляем тренд
-            change += currency.trend;
-            
-            // Резкие изменения с небольшой вероятностью
-            if (Math.random() < 0.05) {
-                change *= 3; // резкий скачок
-            }
-            
-            // Применяем изменение
-            const newPrice = Math.max(0.1, currency.basePrice * (1 + change));
-            currency.basePrice = newPrice;
-            
-            // Обновляем историю
-            currency.history.push(newPrice);
-            if (currency.history.length > 50) currency.history.shift();
-            
-            // Обновляем тренд (случайное блуждание)
-            currency.trend += (Math.random() - 0.5) * 0.02;
-            currency.trend = Math.max(-0.1, Math.min(0.1, currency.trend));
-        });
-
-        // Обновляем UI
-        this.renderCurrencies();
-        if (this.state.selectedCurrency) {
-            this.updateSelectedCurrency();
-        }
-    }
-
-    marketEvent() {
-        // Случайное рыночное событие
-        const eventTypes = [
-            { name: 'Резкий рост', multiplier: 1.5, duration: 5000 },
-            { name: 'Обвал', multiplier: 0.6, duration: 5000 },
-            { name: 'Волатильность', multiplier: 2, duration: 10000 }
-        ];
-        
-        const event = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-        const affectedCurrency = Object.keys(this.state.currencies)[
-            Math.floor(Math.random() * Object.keys(this.state.currencies).length)
-        ];
-        
-        const currency = this.state.currencies[affectedCurrency];
-        const oldVolatility = currency.volatility;
-        
-        // Применяем событие
-        currency.volatility *= event.multiplier;
-        
-        this.showNotification(`${event.name}: ${currency.name}`, 3000);
-        
-        // Возвращаем нормальную волатильность через время
-        setTimeout(() => {
-            currency.volatility = oldVolatility;
-            this.showNotification(`${currency.name}: стабилизация`, 2000);
-        }, event.duration);
-    }
-
-    selectCurrency(currencyId) {
-        this.state.selectedCurrency = currencyId;
-        
-        // Обновляем UI
-        document.querySelectorAll('.currency-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        const selectedItem = document.querySelector(`[data-currency="${currencyId}"]`);
-        if (selectedItem) {
-            selectedItem.classList.add('active');
-        }
-        
-        this.updateSelectedCurrency();
-    }
-
-    updateSelectedCurrency() {
-        const currency = this.state.currencies[this.state.selectedCurrency];
-        if (!currency) return;
-
-        const price = currency.basePrice;
-        const change = currency.history.length > 1 ? 
-            ((price - currency.history[currency.history.length - 2]) / 
-             currency.history[currency.history.length - 2]) * 100 : 0;
-
-        // Обновляем информацию о выбранной валюте
-        this.selectedCurrencyInfo.innerHTML = `
-            <div class="selected-icon">${currency.icon}</div>
-            <div class="selected-name">${currency.name}</div>
-        `;
-
-        this.currentPriceElement.textContent = `${price.toFixed(2)} ₽`;
-        this.priceChangeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-        this.priceChangeElement.className = `price-change ${change >= 0 ? 'positive' : 'negative'}`;
-        
-        // Обновляем портфель
-        this.portfolioAmountElement.textContent = 
-            `${this.state.portfolio[this.state.selectedCurrency].toFixed(4)} ${currency.symbol}`;
-    }
-
-    renderCurrencies() {
-        this.currenciesListElement.innerHTML = '';
-        
-        Object.keys(this.state.currencies).forEach(currencyId => {
-            const currency = this.state.currencies[currencyId];
-            const price = currency.basePrice;
-            const change = currency.history.length > 1 ? 
-                ((price - currency.history[currency.history.length - 2]) / 
-                 currency.history[currency.history.length - 2]) * 100 : 0;
-            
-            const item = document.createElement('div');
-            item.className = `currency-item ${this.state.selectedCurrency === currencyId ? 'active' : ''}`;
-            item.dataset.currency = currencyId;
-            
-            item.innerHTML = `
-                <div class="currency-icon">${currency.icon}</div>
-                <div class="currency-info">
-                    <div class="currency-name">${currency.name}</div>
-                    <div class="currency-symbol">${currency.symbol}</div>
-                </div>
-                <div class="currency-price">
-                    <div class="currency-price-value">${price.toFixed(2)} ₽</div>
-                    <div class="currency-price-change ${change >= 0 ? 'positive' : 'negative'}">
-                        ${change >= 0 ? '↗' : '↘'} ${Math.abs(change).toFixed(2)}%
-                    </div>
-                </div>
-                <div class="currency-amount">
-                    ${this.state.portfolio[currencyId].toFixed(4)} ${currency.symbol}
-                </div>
-            `;
-            
-            item.addEventListener('click', () => {
-                this.selectCurrency(currencyId);
-                this.playClickSound();
-            });
-            
-            this.currenciesListElement.appendChild(item);
-        });
-    }
-
-    trade(action) {
-        if (!this.state.selectedCurrency) {
-            this.showNotification('Выберите валюту', 2000);
-            return;
-        }
-        
-        const currencyId = this.state.selectedCurrency;
-        const currency = this.state.currencies[currencyId];
-        const amount = parseInt(this.tradeAmountInput.value) || 1000;
-        const price = currency.basePrice;
-        
-        if (action === 'buy') {
-            const currencyAmount = amount / price;
-            const cost = amount;
-            
-            if (cost > this.state.balance) {
-                this.showNotification('Недостаточно средств', 2000);
-                this.playErrorSound();
-                return;
-            }
-            
-            this.state.balance -= cost;
-            this.state.portfolio[currencyId] += currencyAmount;
-            this.state.totalTrades++;
-            
-            this.showNotification(
-                `Куплено ${currencyAmount.toFixed(4)} ${currency.symbol} за ${cost.toFixed(2)} ₽`,
-                2000
-            );
-            
-        } else if (action === 'sell') {
-            const currencyAmount = amount / price;
-            const ownedAmount = this.state.portfolio[currencyId];
-            
-            if (currencyAmount > ownedAmount) {
-                this.showNotification('Недостаточно валюты', 2000);
-                this.playErrorSound();
-                return;
-            }
-            
-            const revenue = amount;
-            this.state.balance += revenue;
-            this.state.portfolio[currencyId] -= currencyAmount;
-            this.state.totalTrades++;
-            
-            this.showNotification(
-                `Продано ${currencyAmount.toFixed(4)} ${currency.symbol} за ${revenue.toFixed(2)} ₽`,
-                2000
-            );
-        }
-        
-        this.updateUI();
-        this.playTradeSound();
-    }
-
-    adjustAmount(delta) {
-        let value = parseInt(this.tradeAmountInput.value) || 1000;
-        value += delta;
-        
-        if (value < 100) value = 100;
-        if (value > 100000) value = 100000;
-        
-        this.tradeAmountInput.value = value;
-        this.playClickSound();
-    }
-
-    setAmountByPercent(percent) {
-        const maxAmount = this.state.balance;
-        let amount = Math.floor(maxAmount * (percent / 100));
-        
-        if (amount < 100) amount = 100;
-        if (amount > 100000) amount = 100000;
-        
-        this.tradeAmountInput.value = amount;
-        this.playClickSound();
-    }
-
-    updateUI() {
-        // Обновляем общий баланс
-        this.totalBalanceElement.textContent = `${this.state.balance.toLocaleString('ru-RU')} ₽`;
-        
-        // Обновляем информацию о выбранной валюте
-        if (this.state.selectedCurrency) {
-            this.updateSelectedCurrency();
-        }
-    }
-
-    showNotification(message, duration = 3000) {
-        this.notificationElement.textContent = message;
-        this.notificationElement.classList.add('show');
-        
-        setTimeout(() => {
-            this.notificationElement.classList.remove('show');
-        }, duration);
-    }
-
-    playClickSound() {
-        // Простой звук клика
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
-        
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.1);
-    }
-
-    playTradeSound() {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.2);
-        
-        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.2);
-    }
-
-    playErrorSound() {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.3);
-        
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.3);
+// Воспроизвести звук уведомления
+function playNotificationSound() {
+    try {
+        const audio = new Audio('assets/notification.mp3');
+        audio.volume = 0.3;
+        audio.play();
+    } catch (e) {
+        console.log("Звук не может быть воспроизведен");
     }
 }
 
-// Запуск игры при загрузке
-window.addEventListener('DOMContentLoaded', () => {
-    // Добавляем поддержку AudioContext на iOS
-    if (window.AudioContext || window.webkitAudioContext) {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioContext.state === 'suspended') {
-            const resumeAudio = () => {
-                audioContext.resume();
-                document.removeEventListener('touchstart', resumeAudio);
-                document.removeEventListener('click', resumeAudio);
-            };
-            document.addEventListener('touchstart', resumeAudio);
-            document.addEventListener('click', resumeAudio);
-        }
+// Обновить отображение
+function updateDisplay() {
+    // Обновить баланс
+    document.getElementById('balance').textContent = `${gameState.balance.toFixed(2)}₽`;
+    
+    // Обновить курсы
+    updateCurrencyDisplay('USD');
+    updateCurrencyDisplay('EUR');
+    updateCurrencyDisplay('CNY');
+    
+    // Обновить портфель
+    document.getElementById('usdAmount').textContent = gameState.portfolio.USD.toFixed(2);
+    document.getElementById('eurAmount').textContent = gameState.portfolio.EUR.toFixed(2);
+    document.getElementById('cnyAmount').textContent = gameState.portfolio.CNY.toFixed(2);
+    
+    // Обновить общую стоимость
+    updateTotalValue();
+}
+
+// Обновить отображение валюты
+function updateCurrencyDisplay(currency) {
+    const rateElement = document.getElementById(`${currency.toLowerCase()}Rate`);
+    const changeElement = document.getElementById(`${currency.toLowerCase()}Change`);
+    const cardElement = document.getElementById(`${currency.toLowerCase()}Card`);
+    
+    const currentRate = gameState.rates[currency];
+    const previousRate = gameState.previousRates[currency];
+    const change = ((currentRate - previousRate) / previousRate) * 100;
+    
+    rateElement.textContent = currentRate.toFixed(2);
+    changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+    
+    // Обновить цвет в зависимости от изменения
+    if (change > 0) {
+        changeElement.className = 'rate-change positive';
+        cardElement.style.animation = 'pulseGreen 1s';
+    } else if (change < 0) {
+        changeElement.className = 'rate-change negative';
+        cardElement.style.animation = 'pulseRed 1s';
+    } else {
+        changeElement.className = 'rate-change';
+    }
+}
+
+// Обновить общую стоимость
+function updateTotalValue() {
+    const total = gameState.balance + 
+        gameState.portfolio.USD * gameState.rates.USD +
+        gameState.portfolio.EUR * gameState.rates.EUR +
+        gameState.portfolio.CNY * gameState.rates.CNY;
+    
+    document.getElementById('totalValue').textContent = `${total.toFixed(2)}₽`;
+}
+
+// Обновить отображение новостей
+function updateNewsDisplay() {
+    const newsList = document.getElementById('newsList');
+    newsList.innerHTML = '';
+    
+    gameState.news.forEach(news => {
+        const newsElement = document.createElement('div');
+        newsElement.className = `news-item ${news.type}`;
+        newsElement.innerHTML = `
+            <div class="news-time">${news.time}</div>
+            <div class="news-text">${news.text}</div>
+        `;
+        newsList.appendChild(newsElement);
+    });
+}
+
+// Установить сумму сделки
+function setAmount(amount) {
+    document.getElementById('amount').value = Math.min(amount, gameState.balance);
+}
+
+// Выполнить сделку
+function executeTrade(action) {
+    const currency = document.getElementById('currencySelect').value;
+    const amount = parseFloat(document.getElementById('amount').value);
+    
+    if (isNaN(amount) || amount <= 0) {
+        showNotification("Введите корректную сумму!", "negative");
+        return;
     }
     
-    // Запускаем игру
-    new CurrencyFlow();
+    tradeCurrency(currency, action, amount);
+}
+
+// Торговля валютой
+function tradeCurrency(currency, action, amount = null) {
+    if (!amount) {
+        amount = parseFloat(prompt(`Введите сумму в ${currency}:`, "100"));
+        if (isNaN(amount) || amount <= 0) return;
+    }
+    
+    const rate = gameState.rates[currency];
+    
+    if (action === 'buy') {
+        const cost = amount * rate;
+        if (cost > gameState.balance) {
+            showNotification("Недостаточно средств!", "negative");
+            return;
+        }
+        
+        gameState.balance -= cost;
+        gameState.portfolio[currency] += amount;
+        showNotification(`Куплено ${amount.toFixed(2)} ${currency} за ${cost.toFixed(2)}₽`, "positive");
+    } else {
+        if (amount > gameState.portfolio[currency]) {
+            showNotification("Недостаточно валюты для продажи!", "negative");
+            return;
+        }
+        
+        const income = amount * rate;
+        gameState.balance += income;
+        gameState.portfolio[currency] -= amount;
+        showNotification(`Продано ${amount.toFixed(2)} ${currency} за ${income.toFixed(2)}₽`, "positive");
+    }
+    
+    updateDisplay();
+    saveGame();
+}
+
+// Сохранить игру
+function saveGame() {
+    const saveData = {
+        ...gameState,
+        gameStarted: gameState.gameStarted.toISOString()
+    };
+    
+    localStorage.setItem('currencyTraderSave', JSON.stringify(saveData));
+    showNotification("Игра сохранена!", "positive");
+    
+    // Обновить рейтинг
+    updateRanking();
+}
+
+// Загрузить игру
+function loadGame() {
+    const saved = localStorage.getItem('currencyTraderSave');
+    if (saved) {
+        try {
+            const loaded = JSON.parse(saved);
+            loaded.gameStarted = new Date(loaded.gameStarted);
+            gameState = loaded;
+            showNotification("Игра загружена!", "positive");
+        } catch (e) {
+            console.log("Ошибка загрузки сохранения");
+        }
+    }
+}
+
+// Сбросить игру
+function resetGame() {
+    if (confirm("Вы уверены? Все данные будут потеряны!")) {
+        gameState = {
+            balance: 1500,
+            portfolio: {
+                USD: 0,
+                EUR: 0,
+                CNY: 0
+            },
+            rates: {
+                USD: 80.50,
+                EUR: 90.25,
+                CNY: 11.80
+            },
+            previousRates: {
+                USD: 80.50,
+                EUR: 90.25,
+                CNY: 11.80
+            },
+            news: [],
+            gameStarted: new Date(),
+            soundEnabled: gameState.soundEnabled
+        };
+        
+        localStorage.removeItem('currencyTraderSave');
+        updateDisplay();
+        updateNewsDisplay();
+        showNotification("Игра сброшена!", "neutral");
+    }
+}
+
+// Обновить рейтинг
+function updateRanking() {
+    const totalValue = gameState.balance + 
+        gameState.portfolio.USD * gameState.rates.USD +
+        gameState.portfolio.EUR * gameState.rates.EUR +
+        gameState.portfolio.CNY * gameState.rates.CNY;
+    
+    // Получить все сохранения
+    let rankings = [];
+    
+    // Добавить текущего игрока
+    rankings.push({
+        player: "Вы",
+        value: totalValue,
+        isCurrent: true
+    });
+    
+    // Добавить демо-игроков
+    for (let i = 1; i <= 9; i++) {
+        rankings.push({
+            player: `Игрок ${i}`,
+            value: 1500 + Math.random() * 10000,
+            isCurrent: false
+        });
+    }
+    
+    // Сортировка по убыванию
+    rankings.sort((a, b) => b.value - a.value);
+    
+    // Обновить отображение рейтинга
+    const ratingList = document.getElementById('ratingList');
+    ratingList.innerHTML = '';
+    
+    rankings.forEach((player, index) => {
+        const rankElement = document.createElement('div');
+        rankElement.className = `rating-item ${player.isCurrent ? 'current' : ''}`;
+        rankElement.innerHTML = `
+            <span>${index + 1}. ${player.player}</span>
+            <span>${player.value.toFixed(2)}₽</span>
+        `;
+        ratingList.appendChild(rankElement);
+        
+        // Обновить текущий ранг игрока
+        if (player.isCurrent) {
+            const rankBadge = document.getElementById('rank');
+            rankBadge.textContent = `${index + 1} из ${rankings.length}`;
+        }
+    });
+}
+
+// Переключение звука
+document.getElementById('soundToggle').addEventListener('click', function() {
+    gameState.soundEnabled = !gameState.soundEnabled;
+    const icon = this.querySelector('i');
+    if (gameState.soundEnabled) {
+        icon.className = 'fas fa-volume-up';
+        showNotification("Звук включен", "positive");
+    } else {
+        icon.className = 'fas fa-volume-mute';
+        showNotification("Звук выключен", "neutral");
+    }
 });
+
+// Закрыть модальное окно
+function closeModal() {
+    document.getElementById('ratingModal').classList.add('hidden');
+}
+
+// Открыть модальное окно рейтинга
+document.querySelector('.rating').addEventListener('click', function() {
+    updateRanking();
+    document.getElementById('ratingModal').classList.remove('hidden');
+});
+
+// Инициализация при загрузке
+window.addEventListener('DOMContentLoaded', initGame);
+
+// Добавить CSS анимации
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulseGreen {
+        0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+    
+    @keyframes pulseRed {
+        0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+    }
+`;
+document.head.appendChild(style);
