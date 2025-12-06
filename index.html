@@ -3,13 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic Meditation</title>
-    <meta name="description" content="Pure cosmic flight through the universe">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌌</text></svg>">
+    <title>Cosmic Voyage | 3D Space Experience</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌌</text></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/effects/AsciiEffect.js"></script>
 </head>
 <body>
+    <!-- Прелоадер -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <div class="logo">COSMIC VOYAGE</div>
+            <div class="loading-text">INITIALIZING HYPERSPACE ENGINE...</div>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
+            </div>
+            <div class="hint">Prepare for immersion</div>
+        </div>
+    </div>
+
+    <!-- Основной канвас -->
     <canvas id="spaceCanvas"></canvas>
-    <script src="script.js"></script>
+
+    <!-- Индикаторы (по желанию можно убрать) -->
+    <div class="hud">
+        <div class="hud-item">
+            <div class="hud-label">VELOCITY</div>
+            <div class="hud-value" id="velocity">0.0</div>
+        </div>
+        <div class="hud-item">
+            <div class="hud-label">DISTANCE</div>
+            <div class="hud-value" id="distance">0</div>
+        </div>
+        <div class="hud-item">
+            <div class="hud-label">STARS</div>
+            <div class="hud-value" id="starCount">0</div>
+        </div>
+    </div>
+
+    <!-- Инструкции (исчезают через 10 секунд) -->
+    <div class="instructions" id="instructions">
+        <div class="instruction">WASD / ARROWS - Navigation</div>
+        <div class="instruction">MOUSE - Look around</div>
+        <div class="instruction">SCROLL - Adjust speed</div>
+        <div class="instruction">SPACE - Boost</div>
+        <div class="instruction">F - Toggle fullscreen</div>
+    </div>
+
+    <!-- Кнопка паузы -->
+    <button id="pauseBtn" class="control-btn">⏸ PAUSE</button>
+
+    <script src="main.js"></script>
 </body>
 </html>
